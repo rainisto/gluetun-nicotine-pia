@@ -1,0 +1,36 @@
+services:
+  gluetun-nicotine:
+    image: qmcgaw/gluetun
+    container_name: gluetun-nicotine
+    env_file: .env
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=pia
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=${PIA_USER}
+      - OPENVPN_PASSWORD=${PIA_PASS}
+      - OPENVPN_PROTOCOL=tcp
+      - REGION=${VPN_REGION}
+      - FIREWALL=on
+      - HTTP_CONTROL_SERVER=on
+    ports:
+      - "9080:9080"         # Nicotine+ UI port
+    restart: unless-stopped
+
+  nicotine:
+    image: mrgasparov/nicotine-novnc:latest
+    container_name: nicotine
+    restart: unless-stopped
+    depends_on:
+      - gluetun-nicotine
+    network_mode: "service:gluetun-nicotine"
+    environment:
+      - RESOLUTION=1920x1080
+      - NOVNC_PORT=9080
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${DATA_PATH:-./data}:/data
+      - ${DOWNLOAD_PATH:-./downloads}:/downloads
+

@@ -24,20 +24,37 @@ services:
       - "9080:9080"         # Nicotine+ UI port
     restart: unless-stopped
 
-  nicotine:
-    image: mrgasparov/nicotine-novnc:latest
+  nicotineplus-proper:
+    image: 'sirjmann92/nicotineplus-proper:latest'
     container_name: nicotine
     restart: unless-stopped
     depends_on:
       - gluetun-nicotine
     network_mode: "service:gluetun-nicotine"
+    env_file: .env
     environment:
-      - RESOLUTION=1920x1080
-      - NOVNC_PORT=9080
-      - PUID=1000
-      - PGID=1000
+      - TZ=Europe/Helsinki
+      - LANG=C.UTF-8
+      - UMASK=022
+      - DARKMODE=False
+      - LOGIN=${NICO_USER:-username}
+      - PASSW=${NICO_PASS:-password}
+      - PUID=1000 # Optional: Default is 1000
+      - PGID=1000 # Optional: Default is 1000
+      - UPNP=False
+      - AUTO_CONNECT=True
+      - TRAY_ICON=False
+      - NOTIFY_FILE=False
+      - NOTIFY_FOLDER=False
+      - NOTIFY_TITLE=False
+      - NOTIFY_PM=False
+      - NOTIFY_CHATROOM=False
+      - NOTIFY_MENTION=False
+      - WEB_UI_PORT=9080 # for custom webUI port assignment. Must match to gluetun one.
     volumes:
       - ${DATA_PATH:-./data}:/data
+      - ${CONFIG_PATH:-./config}:/config
       - ${DOWNLOAD_PATH:-./downloads}:/downloads
       - ./gluetun:/gluetun:ro  # Read-only access to forwarded_port
       - ./update-port.sh:/scripts/update-port.sh
+

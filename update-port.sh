@@ -11,14 +11,14 @@ if [[ ! $VPN_IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 fi
 
 # Nicotine+ config file location
-CONFIG_FILE="/data/.config/nicotine/config"
+CONFIG_FILE="/config/config"
 
+chown nicotine:nicotine /config
 # Backup original config
 cp "$CONFIG_FILE" "${CONFIG_FILE}.bak"
 
 # Update port range in config file using sed
 sed -i "s/^portrange = (.*, .*)/portrange = (${PIA_PORT}, ${PIA_PORT})/" "$CONFIG_FILE"
-sed -i "s/^upnp = .*/upnp = False/" "$CONFIG_FILE"
 
 # Verify the change was made
 if grep -q "^portrange = (${PIA_PORT}, ${PIA_PORT})" "$CONFIG_FILE"; then
